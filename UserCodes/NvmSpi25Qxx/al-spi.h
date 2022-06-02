@@ -13,6 +13,9 @@
 void selectFlashSpi(void);
 void deselectFlashSpi(void);
 
-t_spi_data sendGetDataSpi(t_spi_data arg);
+void sendDataSpi(void* arg, uint16_t aNubs );
+
+void sendByteSpi(t_spi_data arg);
+t_spi_data getByteSpi();
 
 #endif

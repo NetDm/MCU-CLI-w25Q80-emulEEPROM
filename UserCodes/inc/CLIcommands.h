@@ -19,7 +19,18 @@ void list(int argc, const char * const * argv);
 void man(int argc, const char * const * argv);
 void prolongationsExec(int argc, const char * const * argv);
 void catver(int argc, const char *const* argv);
-void uid(int argc, const char *const* argv);
+
+void uid(int argc, const char *const* argv);	//уникальный серийник флешь
+void reg( int argc , const char * const * argv );
+
+void eraseAll( int argc , const char * const * argv );
+
+void jedec( int argc , const char * const * argv );
+
+void cat( int argc , const char * const * argv );
+void cathex( int argc , const char * const * argv ); ///выводит содержимое флеш в шесн
+
+void echo( int argc , const char * const * argv );
 
 //void binfw( int argc , const char * const * argv );
 

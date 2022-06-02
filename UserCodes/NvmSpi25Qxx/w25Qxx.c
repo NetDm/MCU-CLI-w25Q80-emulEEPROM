@@ -13,247 +13,280 @@
 
 #include "al-spi.h"
 
-t_spi_data (*_pfSpiGetSend)(t_spi_data) = &sendGetDataSpi;
-void (*pfSelectSpiFlash)(void) = &selectFlashSpi;
-void (*pfSetFreeSpiFlash)(void) = &deselectFlashSpi;
+//t_spi_data (*_pfSpiGetSendByte)(t_spi_data) = &sendGetByteSpi;
 
-/************************/
-void initFlash25q(void){
-	char pVoid[8];
-	GetUniqueIdFlash25q(pVoid);
+static void sleep(uint32_t a){
+	HAL_Delay(a);
 }
 
-static void whileBusyFlash25q(){
-	(*pfSelectSpiFlash)();
-//	while (getBusyStatusFlash25q() != 0) {
-//
+void sendSpiData(t_spi_data* pArg,uint16_t numbs) {
+	sendDataSpi(pArg,numbs);
+}
+
+void sendSpiFlashByte(t_spi_data pArg) {
+	sendByteSpi(pArg);
+}
+
+t_spi_data getSpiByte(){
+	return (getByteSpi());
 }
 
 
-void setResetModeFlash25q(void) {
-
-	whileBusyFlash25q();
-
-
-	(*pfSelectSpiFlash)();
-
-	(*_pfSpiGetSend)(FLASH25Q_COMMAND_ENABLE_RESET);
+void selectFlash25q(){
+	selectFlashSpi();
 }
 
-void doResetFlash25q(void) {
-
-	whileBusyFlash25q();
-
-
-	(*pfSelectSpiFlash)();
-
-	(*_pfSpiGetSend)(FLASH25Q_COMMAND_RESET);
+void unselectFlash25q(){
+	deselectFlashSpi();
 }
 
-uint8_t getStatusRegFlash25q(uint8_t register_num) {
-	if (register_num == 1) {
-		(*_pfSpiGetSend)(FLASH25Q_COMMAND_READ_STATUS_REG_1);
+void initFlash25q(){
+	unselectFlash25q();
+	HAL_Delay(100);
+	setResetModeFlash25q();
+	doResetFlash25q();
+	uint8_t pVoid[3];
+	getJedecIdFlash25q(pVoid);
+}
 
-		(*pfSetFreeSpiFlash)();
-		return (uint8_t) (*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
-	} else if (register_num == 2) {
-		(*_pfSpiGetSend)(FLASH25Q_COMMAND_READ_STATUS_REG_2);
+void setResetModeFlash25q() {
+	selectFlash25q();
+	sendSpiFlashByte(FLASH25Q_COMMAND_ENABLE_RESET);
+}
 
-		(*pfSetFreeSpiFlash)();
-		return (uint8_t) (*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
+void doResetFlash25q() {
+	selectFlash25q();
+	sendSpiFlashByte(FLASH25Q_COMMAND_RESET);
+	unselectFlash25q();
+}
+
+void freeSpiFlash25q(){
+	unselectFlash25q();
+}
+
+
+uint8_t getStatusRegFlash25q(spi_status_reg_t register_num) {
+	selectFlash25q();
+	uint8_t retStatus=0;
+	if (register_num == SPIFLASH_REG1) {
+		sendSpiFlashByte(FLASH25Q_COMMAND_READ_STATUS_REG_1);
+		retStatus= getSpiByte();
+	} else if (register_num == SPIFLASH_REG2) {
+		sendSpiFlashByte(FLASH25Q_COMMAND_READ_STATUS_REG_2);
+		retStatus= (uint8_t) getSpiByte();
 	}
-	(*pfSetFreeSpiFlash)();
-	return 0;
+	return retStatus;
 }
 
-uint8_t getBusyStatusFlash25q(void){
+uint16_t getManufactIdFlash25q() {
 
-	uint8_t val = getStatusRegFlash25q(1);
-	return (val & 0x01);
-}
-
-void setEnableWriteFlash25q(void) {
-
-	whileBusyFlash25q();
-
-
-	(*pfSelectSpiFlash)();
-
-	(*_pfSpiGetSend)(FLASH25Q_COMMAND_WRITE_ENABLE);
-}
-
-void setDisableWriteFlash25q(void) {
-
-	whileBusyFlash25q();
-
-	(*pfSelectSpiFlash)();
-
-	(*_pfSpiGetSend)(FLASH25Q_COMMAND_WRITE_DISABLE);
-}
-
-
-uint16_t getManufactIdFlash25q(void) {
-
-	whileBusyFlash25q();
-
-	(*pfSelectSpiFlash)();
+	selectFlash25q();
 
 	uint16_t temp;
 
-	(*_pfSpiGetSend)(FLASH25Q_COMMAND_MANUFACTURER_ID);
-	(*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
-	(*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
-	(*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
-	temp = (*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
-	temp = temp << 8;
-	temp |= (*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
+	sendSpiFlashByte(FLASH25Q_COMMAND_MANUFACTURER_ID);
+	sendSpiFlashByte(FLASH25Q_COMMAND_NOP);
+	sendSpiFlashByte(FLASH25Q_COMMAND_NOP);
+	sendSpiFlashByte(FLASH25Q_COMMAND_NOP);
+	temp = getSpiByte();
+	temp = temp * 256;
+	temp |= getSpiByte();
 
+	freeSpiFlash25q();
 	return temp;
 }
 
-void GetUniqueIdFlash25q(uint8_t *pRet) {
+void getUniqueIdFlash25q(uint8_t *pRet) {
 
-	whileBusyFlash25q();
+	selectFlash25q();
 
+	sendSpiFlashByte(FLASH25Q_COMMAND_UNIQUE_ID);
+	sendSpiFlashByte(FLASH25Q_COMMAND_NOP);
+	sendSpiFlashByte(FLASH25Q_COMMAND_NOP);
+	sendSpiFlashByte(FLASH25Q_COMMAND_NOP);
+	sendSpiFlashByte(FLASH25Q_COMMAND_NOP);
 
-	(*pfSelectSpiFlash)();
+	pRet[0] = (uint8_t) getSpiByte();
+	pRet[1] = (uint8_t) getSpiByte();
+	pRet[2] = (uint8_t) getSpiByte();
+	pRet[3] = (uint8_t) getSpiByte();
+	pRet[4] = (uint8_t) getSpiByte();
+	pRet[5] = (uint8_t) getSpiByte();
+	pRet[6] = (uint8_t) getSpiByte();
+	pRet[7] = (uint8_t) getSpiByte();
 
-	(*_pfSpiGetSend)(FLASH25Q_COMMAND_UNIQUE_ID);
-	(*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
-	(*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
-	(*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
-	(*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
-
-	pRet[0] = (uint8_t) (*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
-	pRet[1] = (uint8_t) (*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
-	pRet[2] = (uint8_t) (*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
-	pRet[3] = (uint8_t) (*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
-	pRet[4] = (uint8_t) (*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
-	pRet[5] = (uint8_t) (*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
-	pRet[6] = (uint8_t) (*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
-	pRet[7] = (uint8_t) (*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
-
-	(*pfSetFreeSpiFlash)();
+	freeSpiFlash25q();
 }
 
 void getJedecIdFlash25q(uint8_t *pRet) {
+	selectFlash25q();
 
-	whileBusyFlash25q();
-
-
-	(*pfSelectSpiFlash)();
-
-	(*_pfSpiGetSend)(FLASH25Q_COMMAND_JEDEC_ID);
-	pRet[0] = (*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
-	pRet[1] = (*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
-	pRet[2] = (*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
+	sendSpiFlashByte(FLASH25Q_COMMAND_JEDEC_ID);
+	pRet[0] = getSpiByte();
+	pRet[1] = getSpiByte();
+	pRet[2] = getSpiByte();
+	freeSpiFlash25q();
 }
 
-uint8_t readByteDataFlash25q(uint32_t add) {
-
-	whileBusyFlash25q();
-
-
-	(*pfSelectSpiFlash)();
-
-	uint8_t aHi = (uint8_t) ((add & 0x00FF0000) >> 16);
-	uint8_t aMid = (uint8_t) ((add & 0x0000FF00) >> 8);
-	uint8_t aLo = (uint8_t) (add);
-	(*_pfSpiGetSend)(FLASH25Q_COMMAND_READ_DATA);
-	(*_pfSpiGetSend)(aHi);
-	(*_pfSpiGetSend)(aMid);
-	(*_pfSpiGetSend)(aLo);
-	return (uint8_t) (*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
+static void sendAddr24Flash25q(uint32_t aAddr){
+	//	if(ID >= W25Q256)	sendSpiFlashByte((aAddr & 0xFF000000) >> 24);
+	sendSpiFlashByte((aAddr/65536)%256);
+	sendSpiFlashByte((aAddr/256)%256);
+	sendSpiFlashByte(aAddr%256);
 }
 
-void readBlockDataFlash25q(uint32_t add, uint8_t *data_ptr, uint32_t read_len) {
+uint8_t readByteAddrFlash25q(uint32_t aAddr) {
+	selectFlash25q();
+	sendSpiFlashByte(FLASH25Q_COMMAND_READ_DATA);
+	sendAddr24Flash25q(aAddr);
+	uint8_t retByte=getSpiByte();
+	unselectFlash25q();
+	return retByte;
+}
 
-	whileBusyFlash25q();
+void readBlockDataFlash25q(uint32_t aAddr, uint8_t *data_ptr, uint32_t read_len) {
 
+	selectFlash25q();
 
-	(*pfSelectSpiFlash)();
-
-	uint8_t aHi = (uint8_t) ((add & 0x00FF0000) >> 16);
-	uint8_t aMid = (uint8_t) ((add & 0x0000FF00) >> 8);
-	uint8_t aLo = (uint8_t) (add);
-	(*_pfSpiGetSend)(FLASH25Q_COMMAND_READ_DATA);
-	(*_pfSpiGetSend)(aHi);
-	(*_pfSpiGetSend)(aMid);
-	(*_pfSpiGetSend)(aLo);
+	sendSpiFlashByte(FLASH25Q_COMMAND_READ_DATA);
+	sendAddr24Flash25q(aAddr);
 
 	for (uint32_t i = 0; i < read_len; i++) {
-		data_ptr[i] = (uint8_t) (*_pfSpiGetSend)(FLASH25Q_COMMAND_NOP);
+		data_ptr[i] = (uint8_t) getSpiByte();
 	}
 }
 
 void writeStatusRegsFlash25q(uint8_t val_stat_reg_1, uint8_t val_stat_reg_2) {
+	selectFlash25q();
 
-	whileBusyFlash25q();
-
-
-	(*pfSelectSpiFlash)();
-
-	(*_pfSpiGetSend)(FLASH25Q_COMMAND_WRITE_STATUS_REGS);
-	(*_pfSpiGetSend)(val_stat_reg_1);
-	(*_pfSpiGetSend)(val_stat_reg_2);
+	sendSpiFlashByte(FLASH25Q_COMMAND_WRITE_STATUS_REGS);
+	sendSpiFlashByte(val_stat_reg_1);
+	sendSpiFlashByte(val_stat_reg_2);
 }
 
-void eraseSector4kFlash25q(uint32_t add_sector) {
+void setEnableWriteFlash25q() {
+	selectFlash25q();
+		sendSpiFlashByte(FLASH25Q_COMMAND_WRITE_ENABLE);
+	unselectFlash25q();
+}
+
+void setDisableWriteFlash25q() {
+	selectFlash25q();
+	sendSpiFlashByte(FLASH25Q_COMMAND_WRITE_DISABLE);
+	unselectFlash25q();
+}
+
+uint8_t getBusyStatusFlash25q(){
+#define S0BIT (1<<0)
+	uint8_t val = getStatusRegFlash25q(SPIFLASH_REG1);
+	return ( val & S0BIT );
+}
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+static void waitEndWriteFlash25q(){
+	uint8_t StatusRegister1;
+	selectFlash25q();;
+	do{
+		sendSpiFlashByte(FLASH25Q_COMMAND_READ_STATUS_REG_1);
+		StatusRegister1 = getSpiByte();
+		sleep(1);
+	}
+	while((StatusRegister1 & BUSY_BIT_C0) == BUSY_BIT_C0);
+
+	unselectFlash25q();
+}
+
+//isWriteEndFlash25q()
+//sendAddr24Flash25q(aAddr);
+
+void writeByteFlash25q( uint32_t aAddr , uint8_t aByte ){
+	unselectFlash25q();
+	waitEndWriteFlash25q();
+	setEnableWriteFlash25q();
+
+	selectFlash25q();
+
+	sendSpiFlashByte(FLASH25Q_COMMAND_PAGE_PROGRAMM);
+
+	sendAddr24Flash25q(aAddr);
+
+	sendSpiFlashByte(aByte);
+
+	unselectFlash25q();
+
+	waitEndWriteFlash25q();
+
+}
+/*
+ * @arg aNumb - кол-во записываемых данных, !не должен вылазить за страницу вн. кэша вн. флеша (256-aOffset)
+ */
+
+void startWritePageFlash25q(uint8_t *pBuffer, uint32_t aPageAddr, uint32_t aNumb)
+{
+
+//	if(((aNumb + aOffset) > PAGE_CACH_FLASH) || (aNumb == 0))
+//		aNumb = PAGE_CACH_FLASH - aOffset;
+//
+//	if((aOffset + aNumb) > PAGE_CACH_FLASH)
+//		aNumb = PAGE_CACH_FLASH - aOffset;
+//
+
+	waitEndWriteFlash25q();
+
+	setEnableWriteFlash25q();
+
+	selectFlash25q();;
+
+	sendSpiFlashByte(FLASH25Q_COMMAND_PAGE_PROGRAMM);
+
+//	aPageAddr = (aPageAddr * PAGE_CACH_FLASH) + aOffset;
+
+	sendAddr24Flash25q(aPageAddr);
+
+	sendSpiData( pBuffer, aNumb );
+
+	unselectFlash25q();
+
+	waitEndWriteFlash25q();
+
+	sleep(1);
+}
+
+
+void eraseSector4kFlash25q(uint32_t aAddr_sector) {
 	//ERASE THE SPECIFIED SECTOR (4KB)
+	selectFlash25q();
 
-	whileBusyFlash25q();
-
-
-	(*pfSelectSpiFlash)();
-
-	uint8_t aHi = (uint8_t) ((add_sector & 0x00FF0000) >> 16);
-	uint8_t aMid = (uint8_t) ((add_sector & 0x0000FF00) >> 8);
-	uint8_t aLo = (uint8_t) (add_sector);
-
-	(*_pfSpiGetSend)(FLASH25Q_COMMAND_SECTOR_ERASE_4KB);
-	(*_pfSpiGetSend)(aHi);
-	(*_pfSpiGetSend)(aMid);
-	(*_pfSpiGetSend)(aLo);
+	sendSpiFlashByte(FLASH25Q_COMMAND_SECTOR_ERASE_4KB);
+	sendAddr24Flash25q(aAddr_sector);
 }
 
 void eraseBlock32kFlash25q(uint32_t aBlock) {
+	selectFlash25q();
 
-	whileBusyFlash25q();
-
-
-	(*pfSelectSpiFlash)();
-
-	uint8_t aHi = (uint8_t) ((aBlock & 0x00FF0000) >> 16);
-	uint8_t aMid = (uint8_t) ((aBlock & 0x0000FF00) >> 8);
-	uint8_t aLo = (uint8_t) (aBlock);
-
-	(*_pfSpiGetSend)(FLASH25Q_COMMAND_BLOCK_ERASE_32KB);
-	(*_pfSpiGetSend)(aHi);
-	(*_pfSpiGetSend)(aMid);
-	(*_pfSpiGetSend)(aLo);
+	sendSpiFlashByte(FLASH25Q_COMMAND_BLOCK_ERASE_32KB);
+	sendAddr24Flash25q(aBlock);
 }
 
 void eraseBlock64kFlash25q(uint32_t aBlock) {
+	selectFlash25q();
 
-	whileBusyFlash25q();
-
-
-	(*pfSelectSpiFlash)();
-
-	uint8_t aHi = (uint8_t) ((aBlock & 0x00FF0000) >> 16);
-	uint8_t aMid = (uint8_t) ((aBlock & 0x0000FF00) >> 8);
-	uint8_t aLo = (uint8_t) (aBlock);
-
-	(*_pfSpiGetSend)(FLASH25Q_COMMAND_BLOCK_ERASE_64KB);
-	(*_pfSpiGetSend)(aHi);
-	(*_pfSpiGetSend)(aMid);
-	(*_pfSpiGetSend)(aLo);
+	sendSpiFlashByte(FLASH25Q_COMMAND_BLOCK_ERASE_64KB);
+	sendAddr24Flash25q(aBlock);
 }
 
-void eraseAllChipFlash25q(void) {
-	whileBusyFlash25q();
+void eraseAllChipFlash25q() {
 
-	(*pfSelectSpiFlash)();
-	(*_pfSpiGetSend)(FLASH25Q_COMMAND_CHIP_ERASE);
+	unselectFlash25q();
+
+	setEnableWriteFlash25q();
+
+	selectFlash25q();
+	sendSpiFlashByte(FLASH25Q_COMMAND_CHIP_ERASE);
+	unselectFlash25q();
+
+	waitEndWriteFlash25q();
+
+		sleep(10);
 }
 

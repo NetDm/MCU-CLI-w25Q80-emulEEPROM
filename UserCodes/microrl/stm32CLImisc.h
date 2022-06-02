@@ -21,6 +21,7 @@ void printCli (const char * str);
 char get_char (void);
 uint16_t rxCharLen(void);
 #endif
+void flushKeyboard();
 void getRxCDC (void);
 void usbPush(void);
 // execute callback

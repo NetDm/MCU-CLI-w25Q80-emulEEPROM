@@ -16,42 +16,48 @@
 
 #include "w25Qxx.h"
 
-#define SPITIMEOUTMS (10UL)
+#define SPITIMEOUTMS (3000)
 
 void selectFlashSpi(void){
-	HAL_GPIO_WritePin(fromMX(SPI_FLASH_CS),RESET);
-	HAL_Delay(10);
+	if ( HAL_GPIO_ReadPin(fromMX(SPI_FLASH_CS)) == SET ){
+		HAL_GPIO_WritePin(fromMX(SPI_FLASH_CS),RESET);
+		HAL_Delay(1);
+	}
 }
 void deselectFlashSpi(void){
 	HAL_GPIO_WritePin(fromMX(SPI_FLASH_CS),SET);
-	HAL_Delay(10);
+	HAL_Delay(1);
 }
 
+void sendDataSpi(void* arg, uint16_t aNumbs ){
+	t_spi_data TX = arg;
+	HAL_SPI_Transmit(&hspi1
+			, arg
+			,aNumbs/*sizeof(t_spi_data)*/
+			,SPITIMEOUTMS
+			);
 
-t_spi_data sendGetDataSpi(t_spi_data arg){
+	return ;
+}
+
+void sendByteSpi(t_spi_data arg){
 	t_spi_data TX = arg;
 	t_spi_data RX;
-	size_t t=SPITIMEOUTMS;
-	while(  (HAL_SPI_GetState(&hspi3) != HAL_SPI_STATE_READY) && (--t!=0)  ){
-		HAL_Delay(1);
-	}
-		#if DBUG>=1
-	if (t==0){
-			//		dbugerr("timeout SPI");
-			#if DBUG>=2
-		while(1==1);
-			#endif
-	}
-		#endif
-
-	HAL_SPI_TransmitReceive(&hspi3
+	HAL_SPI_Transmit(&hspi1
 			, &TX
-			, &RX
-			,1/*sizeof(t_spi_data)*/
-			,100
+			,1
+			,SPITIMEOUTMS
 			);
 
 	return ( RX );
 }
 
-
+t_spi_data getByteSpi() {
+		t_spi_data RX;
+		HAL_SPI_Receive(&hspi1
+				, &RX
+				,1
+				,SPITIMEOUTMS
+				);
+		return ( RX );
+	}

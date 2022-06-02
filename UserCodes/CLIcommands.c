@@ -38,7 +38,7 @@ exec_cmds_t list_cmds[]={
 		,{
 				"man",
 				man,
-				"manual commands, use 'man *cmd*', example: man tpsm"
+				"manual commands, use 'man *cmd*', example: man list"
 				""
 		}
 		,{
@@ -72,11 +72,60 @@ exec_cmds_t list_cmds[]={
 				"prolongations/separation command, need spase on both sides, exaple enter: clear & man tau",
 				""
 		}
+
+		,{
+				"reg",
+				reg,
+				"Выводит состояние одного из статусного регистра"
+				"CONTROL AND STATUS REGISTERS: The Read Status Register-1 and Status Register-2"
+				"пример команд: 'getreg 1' или 'getreg 2'"
+				,""
+		}
+		,{
+				"eraseAll",
+				eraseAll,
+				"Стирает всю SPI flash"
+				,""
+		}
+		,{
+				"jedec",
+				jedec,
+				"Выводит winbond JedecID\n\r"
+				"(page 54, https://static.chipdip.ru/lib/463/DOC002463585.pdf)"
+				,""
+		}
+		,{
+				"cathex",
+				cathex,
+				"Выводит содержимое сер. флешки в шеснадцатиричном формате, формат ввода: 'cathex <addr> <len>', "
+				" где адрес и длинна вводятся в 10м формате"
+				" Пример ввода: cathex 10 18 - выводит 18 байт начиная с 10(дес) адреса"
+				,""
+		}
+		,{
+				"cat",
+				cat,
+				"Выводит содержимое сер. флешки в ASCII формате, формат ввода: 'cat <addr> <len>', "
+				" где адрес и длинна вводятся в 10м формате"
+				" Пример ввода: cat 10 18 - выводит 18 байт начиная с 10(дес) адреса"
+				,""
+		}
+		,{
+				"echo",
+				echo,
+				"Записывает содержимое в сер. флешку в ASCII формате, формат ввода: 'echo <addr> <len> <str>', "
+				" где адрес и длинна вводятся в 10м формате"
+				" Пример ввода: echo 10 Я здесь был! - запишет строку 'Я здесь был!' начиная с 10 адреса"
+				,""
+		}
+
+
+
 		,{0,0,0}
 };
 
+char szERROR[]	=CLBOLDRED "\n\rERROR ARGUMENTS\n\r" CLDEFAULTTEXT "\n\r";
 /*
-char szERROR[]	=CLBOLDRED "\n\rERROR" CLDEFAULTTEXT "\n\r";
 char szWRITEOK[]=CLYELLOW "\n\rWRITEOK" CLDEFAULTTEXT "\n\r";
 char szREAD[]	=CLGREEN "\n\rREAD:" CLDEFAULTTEXT " ";
 char szOK[]		=CLGREEN "\n\rOK" CLDEFAULTTEXT "\n\r";
@@ -89,10 +138,10 @@ void respondWRITEOK(){
 void respondREAD(){
 	printCli (szREAD);
 }
+*/
 void respondERROR(){
 	printCli(szERROR);
 }
-*/
 
 void help(int argc, const char * const * argv){
 	printCli ("microCLI library based shell v 1.1\n\r\n");
@@ -124,32 +173,6 @@ void list(int argc, const char * const * argv){
 	printCli(CLDEFAULTTEXT);
 }
 
-//									char isUsbReady()
-//									{
-//										usbPush();
-//										return(txUsbReady());
-//									}
-/* EXAMPLE PARSE INT ARGUMENTS
-void port(int argc, const char * const * argv){
-	if (argc!=0){
-		int port=atoi(argv[0]);
-		if ((port>=0)&&(port<=65535)){
-			setServerPort(port);
-			respondWRITEOK();
-		}else{
-			respondERROR();
-			printCli("Values out range from 0 to 65535\n\r");
-		}
-	}
-	respondREAD();
-	printCli("brokerPort='");
-	char str[6];
-	utoa(getServerPort(),str,10);
-	printCli(str);
-	printCli("'");
-	//заключить данные в ' так-же для серийника и прпр, тк регулярка может обработать недопринятые данные и закрыть порт
-}
-*/
 void prolongationsExec( int argc , const char * const * argv ){
 	execute_list_commands ( argc , &argv[0]);
 }
@@ -173,102 +196,14 @@ void man(int argc, const char *const* argv){
 		}
 		i++;
 	}
-	printCli ("Command for man absent, exec: list\n\r");
+	printCli ("Command for man absent, exec 'man man' and exec 'list'\n\r");
 }
 
-/*
-void binfw( int argc , const char * const * argv ){
-#define FW_TIMEOUT_DATA 3000
-	uint32_t timestamp=HAL_GetTick();
-	uint32_t aCrc32;
-	char crcEnable=0;
-	int size=atoi(argv[0]);
-	if (argc>1){
-		aCrc32=atol(argv[1]);
-		crcEnable=1;
-	}
-//	if (crcEnable) crc32begin();
-	startSavingNewFw(size);
-	waitLastNvmOperations();
-	HAL_Delay(10);
-	resetRxLength();
-	printCli("ready>");
-	isUsbReady();
-	uint32_t i=0;
-	uint32_t ii=0;
-	do{
-		if ( (HAL_GetTick()-timestamp) > FW_TIMEOUT_DATA ){
-			printCli("timeout data flow");
-			return;
-		}
-
-		uint32_t l;
-		do{
-			l=rxUsbLen();
-			HAL_Delay(20);
-		}while(l<rxUsbLen());
-		resetRxLength();
-
-
-		if (l>0){
-			timestamp=HAL_GetTick();
-			i+=l;
-			if (i>size){
-				printCli("Over size error");
-				return;
-			}
-
-			if ( (ii+l)>BLOCK_FW_SIZE ){
-				printCli("Block size error");
-				return;
-			}else{
-				extern uint8_t UserRxBufferFS[];
-				memcpy(((uint8_t*)getPtrBuffNvm()+ii),UserRxBufferFS,l);
-				ii+=l;
-				if ( (ii==BLOCK_FW_SIZE) || (i=size) ){
-//					if (crcEnable){
-//						crc32calculate(ii, getPtrBuffNvm());
-//					}
-					writeBuffNvmPage();
-					if (i==size) {
-						if (crcEnable){
-							crc32begin();
-							crc32calculate(size, (uint8_t*)FLASH_BANK_FW_LOAD);
-							if (getLastCrc32()!=aCrc32){
-								printCli("Crc no correct! binary break");
-								return;
-							}
-						}
-						if (isFwWriteComplite()==0){
-							printCli("Size did not match! toggle break");
-							return;
-						}
-						printCli ("FW successfully copied and restarted");
-						isUsbReady();
-						HAL_Delay(200);
-						copyBank2toBank1andReset(size);
-					}
-					ii=0;
-					printCli("next>");
-					isUsbReady();
-				}
-
-
-			}
-
-	//		printCli(Rx_tmp_buff);
-
-		}else{
-			HAL_Delay(10);
-		}
-
-	}while (i<size);
-}
-*/
+#include "w25q80def.h"
 
 void uid(int argc, const char *const* argv){
 	uint8_t UId[8];
-	GetUniqueIdFlash25q(UId);
+	getUniqueIdFlash25q(UId);
 
 	const char stroutmask[]= "Manufacture Uniqui UID SPI flash: %02x%02x%02x%02x%02x%02x%02x%02x\n\r";
 	char strout[sizeof(stroutmask)+2];
@@ -277,26 +212,157 @@ void uid(int argc, const char *const* argv){
 	printCli(strout);
 }
 
-//void binfw( int argc , const char * const * argv ){
-//#define FW_TIMEOUT_DATA 3000
-//	uint32_t timestamp=HAL_GetTick();
-//	uint32_t aCrc32;
-//	char crcEnable=0;
-//	int size=atoi(argv[0]);
-//	if (argc>1){
-//		aCrc32=atol(argv[1]);
-//		crcEnable=1;
+void reg( int argc , const char * const * argv ){
+
+	if (argc!=1){
+		respondERROR();
+		return;
+	}
+	uint8_t status;
+	size_t i=atol(argv[0]);
+	if ( (i==1) || (i==2) ){
+		status=getStatusRegFlash25q(i);
+	}else{
+		respondERROR();
+		return;
+	}
+	const char stroutmask[]= "Текущий статус Status Register-%d : %d\n\n\r";
+	char strout[sizeof(stroutmask)+2];
+	sprintf( strout , stroutmask , i , status );
+	printCli(strout);
+
+}
+
+void eraseAll( int argc , const char * const * argv ){
+	eraseAllChipFlash25q();
+	printCli("\n\rChip erased complite!\n\r");
+}
+
+
+void cathex( int argc , const char * const * argv ){
+
+	if (argc!=2){
+		respondERROR();
+		return;
+	}
+	size_t addr=atol(argv[0]);
+	if (addr>=AllSpiFlashSize){
+		printCli("Адрес задан вне допустимого диапазона\n\r");
+		return;
+	}
+	size_t numbs=atoi(argv[1]);
+	const char stroutmask[]= "Вывод содержимого внешней SPI flash по адресу %u в кол-ве %u байт в HEX(16):\n\n\r";
+	char strout[sizeof(stroutmask)+2];
+	sprintf(strout, stroutmask,addr,numbs );
+	printCli(strout);
+
+
+	while (  (0!=numbs--) && (addr<AllSpiFlashSize) ){
+		uint8_t bSrc = readByteAddrFlash25q(addr);
+		sprintf(strout,"%02X ",bSrc);
+		printCli(strout);
+		if ((numbs&7)==7)printCli(" ");
+		if ((numbs&31)==31)printCli("\n\r");
+		addr++;
+	}
+	printCli("\n\r-- end --\n\r");
+}
+
+void jedec( int argc , const char * const * argv ){
+	char pVoid[3];
+	getJedecIdFlash25q(pVoid);
+
+	const char stroutmask[]= "winbond JedecId SPI flash (page 54, https://static.chipdip.ru/lib/463/DOC002463585.pdf) \n\r"
+			"Manufacturer ID (0xEF=25Q80): %02X\n\r"
+			"Memory Type ID1: %+02X\n\r"
+			"Capacity ID: %+02X \n\r";
+	char strout[sizeof(stroutmask)+2];
+	sprintf(strout, stroutmask, pVoid[2],pVoid[1],pVoid[0] );
+	printCli(strout);
+
+}
+
+void cat( int argc , const char * const * argv ){
+
+	if (argc!=2){
+		respondERROR();
+		return;
+	}
+	size_t addr=atol(argv[0]);
+	if (addr>=AllSpiFlashSize){
+		printCli("Адрес задан вне допустимого диапазона\n\r");
+		return;
+	}
+	size_t numbs=atoi(argv[1]);
+	const char stroutmask[]= "Вывод содержимого внешней SPI flash по адресу %u в кол-ве %u байт в ASCII:\n\n\r";
+	char strout[sizeof(stroutmask)+2];
+	sprintf(strout, stroutmask,addr,numbs );
+	printCli(strout);
+
+	while (  (0!=numbs--) && (addr<AllSpiFlashSize) ){
+
+		uint8_t bSrc = readByteAddrFlash25q(addr);
+		sprintf(strout,"%c",bSrc);
+		printCli(strout);
+		addr++;
+	}
+
+	unselectFlash25q();
+
+	printCli("\n\r-- end --\n\r");
+	flushKeyboard();
+}
+
+void echo( int argc , const char * const * argv ){
+
+	if (argc<2){
+		respondERROR();
+		return;
+	}
+	size_t addr=atol(argv[0]);
+	if (addr>=AllSpiFlashSize){
+		printCli("Адрес задан вне допустимого диапазона\n\r");
+		return;
+	}
+	int i=argc;
+	while(--argc>1){
+		char* src=argv[argc]-1;
+		*src=32;
+	}
+	size_t numbs=strlen(argv[1]);
+	if (  numbs  >  ( PAGE_CACH_FLASH - (addr%PAGE_CACH_FLASH) )  ){
+		respondERROR();
+		printCli("Данные выходят за границы страницы кэш флеш");
+		return;
+	}
+	const char stroutmask[]= "Ввод содержимого во внешнюю SPI flash по адресу %u в кол-ве %u байт в ASCII: '";
+	char strout[sizeof(stroutmask)+2];
+	sprintf( strout , stroutmask , addr , numbs );
+	printCli(strout);
+	printCli(argv[1]);
+	printCli("'\n\r");
+
+	startWritePageFlash25q(argv[1],addr,numbs);
+
+//	setEnableWriteFlash25q();
+//	while (  (0!=numbs)  &&  ( addr < AllSpiFlashSize )  ){
+//		if (rxCharLen()!=0){
+//			char chars[2]={0,0};
+//			chars[0]=get_char();
+//			numbs--;
+//			printCli((char*)chars);
+////			setReadDataAddrFlash25q(addr);
+////			setReadDataAddrFlash25q(addr);
+////			if (readByteDataNextFlash25q()!=CLEAR_NVM_SPI_BYTE){
+////				printCli("\n\rError: ячейка в которую пишется не очищена!");
+////			}
+////			writeByteFlash25q( addr , chars[0] );
+//			addr++;
+//		}
 //	}
-////	if (crcEnable) crc32begin();
-//	startSavingNewFw(size);
-//	waitLastNvmOperations();
-//	HAL_Delay(10);
-//	resetRxLength();
-//	printCli("ready>");
-//	isUsbReady();
-//	uint32_t i=0;
-//	uint32_t ii=0;
-//	do{
-//
-//void readBlockDataFlash25q(uint32_t add, uint8_t* data_ptr, uint32_t read_len);
-//
+//	printCli("\n\r-- end keyboard input, thanks! :) --\n\r");
+	flushKeyboard();
+}
+
+
+

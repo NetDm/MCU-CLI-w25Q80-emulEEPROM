@@ -16,5 +16,8 @@
 #define	CLI_PROMPT_DEFAULT_TEXT "25Q80 CLI >: " /*use size for positions under him*/
 
 #define DBUG (2)
+#if DBUG>=2
+#warning ВНИМАНИЕ БЛОКИРУЮЩАЯ ОТЛАДКА, ДЛЯ РЕЛИЗА СНИЗИТЬ НИЖЕ 2х !!!
+#endif
 
 #endif /* HWCONFIG_H_ */

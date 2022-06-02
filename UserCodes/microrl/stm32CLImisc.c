@@ -204,6 +204,13 @@ char get_char(void)
 }
 #endif
 
+void flushKeyboard(){
+	while (rxCharLen()!=0){
+		get_char();
+	}
+}
+
+
 //// definition commands word
 //#define _CMD_HELP  "help"
 //#define _CMD_CLEAR "clear"
