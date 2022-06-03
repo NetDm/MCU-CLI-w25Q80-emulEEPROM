@@ -12,6 +12,7 @@ RM := rm -rf
 -include UserCodes/microrl/src/subdir.mk
 -include UserCodes/microrl/subdir.mk
 -include UserCodes/NvmSpi25Qxx/subdir.mk
+-include UserCodes/ApL/subdir.mk
 -include UserCodes/subdir.mk
 -include Drivers/STM32L4xx_HAL_Driver/Src/subdir.mk
 -include Core/Startup/subdir.mk

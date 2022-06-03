@@ -246,7 +246,7 @@ void cathex( int argc , const char * const * argv ){
 		return;
 	}
 	size_t addr=atol(argv[0]);
-	if (addr>=AllSpiFlashSize){
+	if (addr>=ALL_SPI_FLASH_SIZE){
 		printCli("Адрес задан вне допустимого диапазона\n\r");
 		return;
 	}
@@ -257,7 +257,7 @@ void cathex( int argc , const char * const * argv ){
 	printCli(strout);
 
 
-	while (  (0!=numbs--) && (addr<AllSpiFlashSize) ){
+	while (  (0!=numbs--) && (addr<ALL_SPI_FLASH_SIZE) ){
 		uint8_t bSrc = readByteAddrFlash25q(addr);
 		sprintf(strout,"%02X ",bSrc);
 		printCli(strout);
@@ -289,7 +289,7 @@ void cat( int argc , const char * const * argv ){
 		return;
 	}
 	size_t addr=atol(argv[0]);
-	if (addr>=AllSpiFlashSize){
+	if (addr>=ALL_SPI_FLASH_SIZE){
 		printCli("Адрес задан вне допустимого диапазона\n\r");
 		return;
 	}
@@ -299,7 +299,7 @@ void cat( int argc , const char * const * argv ){
 	sprintf(strout, stroutmask,addr,numbs );
 	printCli(strout);
 
-	while (  (0!=numbs--) && (addr<AllSpiFlashSize) ){
+	while (  (0!=numbs--) && (addr<ALL_SPI_FLASH_SIZE) ){
 
 		uint8_t bSrc = readByteAddrFlash25q(addr);
 		sprintf(strout,"%c",bSrc);
@@ -314,13 +314,12 @@ void cat( int argc , const char * const * argv ){
 }
 
 void echo( int argc , const char * const * argv ){
-
 	if (argc<2){
 		respondERROR();
 		return;
 	}
 	size_t addr=atol(argv[0]);
-	if (addr>=AllSpiFlashSize){
+	if (addr>=ALL_SPI_FLASH_SIZE){
 		printCli("Адрес задан вне допустимого диапазона\n\r");
 		return;
 	}
@@ -342,7 +341,7 @@ void echo( int argc , const char * const * argv ){
 	printCli(argv[1]);
 	printCli("'\n\r");
 
-	startWritePageFlash25q(argv[1],addr,numbs);
+	startWritePageFlash25q( argv[1] , addr , numbs );
 
 //	setEnableWriteFlash25q();
 //	while (  (0!=numbs)  &&  ( addr < AllSpiFlashSize )  ){

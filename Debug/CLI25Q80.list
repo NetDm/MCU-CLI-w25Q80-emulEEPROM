@@ -27,23 +27,23 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 00000030  00000000  00000000  0002017c  2**0
                   CONTENTS, READONLY
- 12 .debug_info   00010600  00000000  00000000  000201ac  2**0
+ 12 .debug_info   00010605  00000000  00000000  000201ac  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 00002e3e  00000000  00000000  000307ac  2**0
+ 13 .debug_abbrev 00002e3e  00000000  00000000  000307b1  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  14 .debug_aranges 00000e98  00000000  00000000  000335f0  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  15 .debug_ranges 00000d40  00000000  00000000  00034488  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  00028042  00000000  00000000  000351c8  2**0
+ 16 .debug_macro  00027e7b  00000000  00000000  000351c8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   00012f0f  00000000  00000000  0005d20a  2**0
+ 17 .debug_line   00012f1b  00000000  00000000  0005d043  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    000ef3fe  00000000  00000000  00070119  2**0
+ 18 .debug_str    000ef427  00000000  00000000  0006ff5e  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000050  00000000  00000000  0015f517  2**0
+ 19 .comment      00000050  00000000  00000000  0015f385  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00003e54  00000000  00000000  0015f568  2**2
+ 20 .debug_frame  00003e54  00000000  00000000  0015f3d8  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -13588,7 +13588,7 @@ void cathex( int argc , const char * const * argv ){
  8005018:	f001 fb46 	bl	80066a8 <atol>
  800501c:	4603      	mov	r3, r0
  800501e:	f8c7 3104 	str.w	r3, [r7, #260]	; 0x104
-	if (addr>=AllSpiFlashSize){
+	if (addr>=ALL_SPI_FLASH_SIZE){
  8005022:	f8d7 3104 	ldr.w	r3, [r7, #260]	; 0x104
  8005026:	f5b3 0f80 	cmp.w	r3, #4194304	; 0x400000
  800502a:	d303      	bcc.n	8005034 <cathex+0x58>
@@ -13628,7 +13628,7 @@ void cathex( int argc , const char * const * argv ){
  8005078:	f001 fa48 	bl	800650c <printCli>
 
 
-	while (  (0!=numbs--) && (addr<AllSpiFlashSize) ){
+	while (  (0!=numbs--) && (addr<ALL_SPI_FLASH_SIZE) ){
  800507c:	e02a      	b.n	80050d4 <cathex+0xf8>
 		uint8_t bSrc = readByteAddrFlash25q(addr);
  800507e:	f8d7 0104 	ldr.w	r0, [r7, #260]	; 0x104
@@ -13663,7 +13663,7 @@ void cathex( int argc , const char * const * argv ){
  80050ca:	f8d7 3104 	ldr.w	r3, [r7, #260]	; 0x104
  80050ce:	3301      	adds	r3, #1
  80050d0:	f8c7 3104 	str.w	r3, [r7, #260]	; 0x104
-	while (  (0!=numbs--) && (addr<AllSpiFlashSize) ){
+	while (  (0!=numbs--) && (addr<ALL_SPI_FLASH_SIZE) ){
  80050d4:	f8d7 3100 	ldr.w	r3, [r7, #256]	; 0x100
  80050d8:	1e5a      	subs	r2, r3, #1
  80050da:	f8c7 2100 	str.w	r2, [r7, #256]	; 0x100
@@ -13773,7 +13773,7 @@ void cat( int argc , const char * const * argv ){
  80051bc:	f001 fa74 	bl	80066a8 <atol>
  80051c0:	4603      	mov	r3, r0
  80051c2:	f8c7 3104 	str.w	r3, [r7, #260]	; 0x104
-	if (addr>=AllSpiFlashSize){
+	if (addr>=ALL_SPI_FLASH_SIZE){
  80051c6:	f8d7 3104 	ldr.w	r3, [r7, #260]	; 0x104
  80051ca:	f5b3 0f80 	cmp.w	r3, #4194304	; 0x400000
  80051ce:	d303      	bcc.n	80051d8 <cat+0x58>
@@ -13812,7 +13812,7 @@ void cat( int argc , const char * const * argv ){
  800521a:	4618      	mov	r0, r3
  800521c:	f001 f976 	bl	800650c <printCli>
 
-	while (  (0!=numbs--) && (addr<AllSpiFlashSize) ){
+	while (  (0!=numbs--) && (addr<ALL_SPI_FLASH_SIZE) ){
  8005220:	e018      	b.n	8005254 <cat+0xd4>
 
 		uint8_t bSrc = readByteAddrFlash25q(addr);
@@ -13834,7 +13834,7 @@ void cat( int argc , const char * const * argv ){
  800524a:	f8d7 3104 	ldr.w	r3, [r7, #260]	; 0x104
  800524e:	3301      	adds	r3, #1
  8005250:	f8c7 3104 	str.w	r3, [r7, #260]	; 0x104
-	while (  (0!=numbs--) && (addr<AllSpiFlashSize) ){
+	while (  (0!=numbs--) && (addr<ALL_SPI_FLASH_SIZE) ){
  8005254:	f8d7 3100 	ldr.w	r3, [r7, #256]	; 0x100
  8005258:	1e5a      	subs	r2, r3, #1
  800525a:	f8c7 2100 	str.w	r2, [r7, #256]	; 0x100
@@ -13875,7 +13875,6 @@ void echo( int argc , const char * const * argv ){
  80052a4:	f507 7388 	add.w	r3, r7, #272	; 0x110
  80052a8:	f5a3 7388 	sub.w	r3, r3, #272	; 0x110
  80052ac:	6019      	str	r1, [r3, #0]
-
 	if (argc<2){
  80052ae:	f507 7388 	add.w	r3, r7, #272	; 0x110
  80052b2:	f5a3 7386 	sub.w	r3, r3, #268	; 0x10c
@@ -13896,7 +13895,7 @@ void echo( int argc , const char * const * argv ){
  80052d0:	f001 f9ea 	bl	80066a8 <atol>
  80052d4:	4603      	mov	r3, r0
  80052d6:	f8c7 310c 	str.w	r3, [r7, #268]	; 0x10c
-	if (addr>=AllSpiFlashSize){
+	if (addr>=ALL_SPI_FLASH_SIZE){
  80052da:	f8d7 310c 	ldr.w	r3, [r7, #268]	; 0x10c
  80052de:	f5b3 0f80 	cmp.w	r3, #4194304	; 0x400000
  80052e2:	d303      	bcc.n	80052ec <echo+0x58>
@@ -13997,7 +13996,7 @@ void echo( int argc , const char * const * argv ){
  80053c0:	480e      	ldr	r0, [pc, #56]	; (80053fc <echo+0x168>)
  80053c2:	f001 f8a3 	bl	800650c <printCli>
 
-	startWritePageFlash25q(argv[1],addr,numbs);
+	startWritePageFlash25q( argv[1] , addr , numbs );
  80053c6:	f507 7388 	add.w	r3, r7, #272	; 0x110
  80053ca:	f5a3 7388 	sub.w	r3, r3, #272	; 0x110
  80053ce:	681b      	ldr	r3, [r3, #0]
@@ -14512,7 +14511,6 @@ void getJedecIdFlash25q(uint8_t *pRet) {
  80056b2:	6078      	str	r0, [r7, #4]
 	selectFlash25q();
  80056b4:	f7ff ff52 	bl	800555c <selectFlash25q>
-
 	sendSpiFlashByte(FLASH25Q_COMMAND_JEDEC_ID);
  80056b8:	209f      	movs	r0, #159	; 0x9f
  80056ba:	f7ff ff3b 	bl	8005534 <sendSpiFlashByte>

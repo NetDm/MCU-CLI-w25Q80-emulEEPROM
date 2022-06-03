@@ -120,7 +120,6 @@ void getUniqueIdFlash25q(uint8_t *pRet) {
 
 void getJedecIdFlash25q(uint8_t *pRet) {
 	selectFlash25q();
-
 	sendSpiFlashByte(FLASH25Q_COMMAND_JEDEC_ID);
 	pRet[0] = getSpiByte();
 	pRet[1] = getSpiByte();
