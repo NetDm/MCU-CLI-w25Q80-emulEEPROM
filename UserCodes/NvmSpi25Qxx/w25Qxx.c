@@ -129,7 +129,7 @@ void getJedecIdFlash25q(uint8_t *pRet) {
 }
 
 static void sendAddr24Flash25q(uint32_t aAddr){
-	//	if(ID >= W25Q256)	sendSpiFlashByte((aAddr & 0xFF000000) >> 24);
+	//todo	if(ID >= W25Q256)	sendSpiFlashByte((aAddr & 0xFF000000) >> 24);
 	sendSpiFlashByte((aAddr/65536)%256);
 	sendSpiFlashByte((aAddr/256)%256);
 	sendSpiFlashByte(aAddr%256);

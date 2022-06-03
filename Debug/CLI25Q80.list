@@ -14549,7 +14549,7 @@ static void sendAddr24Flash25q(uint32_t aAddr){
  80056f0:	b082      	sub	sp, #8
  80056f2:	af00      	add	r7, sp, #0
  80056f4:	6078      	str	r0, [r7, #4]
-	//	if(ID >= W25Q256)	sendSpiFlashByte((aAddr & 0xFF000000) >> 24);
+	//todo	if(ID >= W25Q256)	sendSpiFlashByte((aAddr & 0xFF000000) >> 24);
 	sendSpiFlashByte((aAddr/65536)%256);
  80056f6:	687b      	ldr	r3, [r7, #4]
  80056f8:	0c1b      	lsrs	r3, r3, #16
