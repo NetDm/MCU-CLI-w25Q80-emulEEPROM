@@ -109,6 +109,10 @@ match_nvm_t threadNVM25Q80(){
 	return (stateNvm);
 }
 
+/*
+ * после валидации данных для автомата процесса NVM
+ * инициируется необходимый процесс и автомат NVM приступает к работе
+ */
 bool_t startNvm(nvm_t* aNvm){
 //	if (aNvm->stopAddrNvm < ALL_SPI_FLASH_SIZE)
 //	aNvm->numbsWrite

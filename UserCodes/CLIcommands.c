@@ -127,11 +127,12 @@ exec_cmds_t list_cmds[]={
 				"writeRaw",
 				writeRaw,
 				"Перезаписывает содержимое в сер. флешку в RAW (bin) формате, формат ввода: "
-				"'echo <addr> <len><ENTER>' - для потоковой записи, терминал переключится в бинарный потоковый прием"
-				" и запишет во флеш принятые байты, после приема <len> кол-ва, автоматически вернется в CLI redline терминал ввода"
-				", адрес и длинна вводятся в 10м формате. Вместо <ENTER> - можно передать символ с кодом 0D(hex) или"
-				"13(dec) и "
-				" Пример ввода: echo 10 Я здесь был! - запишет строку 'Я здесь был!' начиная с 10 адреса"
+				"'writeRaw <addr> <len><ENTER>' - для потоковой записи,"
+				" терминал переключится в бинарный потоковый прием"
+				" и запишет во флеш принятые байты, после приема <len> кол-ва, "
+				"автоматически вернется в CLI redline терминал ввода"
+				", адрес и длинна вводятся в 10м формате."
+				"\n\r Вместо <ENTER> - можно передать символ с кодом 0D(hex) / 13(dec) "
 				,""
 		}
 
@@ -396,6 +397,21 @@ void writeRaw( int argc , const char * const * argv ){
 	printCli(argv[1]);
 	printCli("'\n\r <<");
 
+	nvm_t tNvm={
+		.numbsWrite = numbs
+		,.startAddrNvm = addr
+		,.passCallback=returnCliByte
+	};
+		if ( startNvm(&tNvm) ) {
+			while ( threadNVM25Q80()>=WAIT_NVM_DATA );	//внимание! автомат nvm вызывается отсюда,
+		}												//пока не отработает
+														//прочие таски блокируются
+														//сам будет вызывать поток
+														//драйвер для изъятия данных из потока
+														//returnCliByte(..)
+
+	flushKeyboard();
+}
 
 //	setEnableWriteFlash25q();
 //	while (  (0!=numbs)  &&  ( addr < AllSpiFlashSize )  ){
@@ -414,5 +430,3 @@ void writeRaw( int argc , const char * const * argv ){
 //		}
 //	}
 //	printCli("\n\r-- end keyboard input, thanks! :) --\n\r");
-	flushKeyboard();
-}

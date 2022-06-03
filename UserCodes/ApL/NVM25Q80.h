@@ -32,4 +32,6 @@ void setCallbackInputStream(pfCallbackGetCharStream_t* pfArg);
 uint8_t getOltByteNVM();
 match_nvm_t threadNVM25Q80(); // не блокирующая таймер-функция входа в обработчик внутренних событий неблокирующего автомата
 
+bool_t startNvm(nvm_t* aNvm);
+
 #endif /* APL_NVM25Q80_H_ */
