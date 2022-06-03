@@ -23,6 +23,10 @@ void userApp(void)
 
 	while (1){
 
+		//
+		threadNVM25Q80();
+		//
+
 		//!! thread - 01
 	#ifdef __SW_CLI_HTREAD
 		CLIthread();

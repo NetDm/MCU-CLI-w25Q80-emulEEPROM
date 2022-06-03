@@ -8,24 +8,28 @@
 #ifndef APL_NVM25Q80_H_
 #define APL_NVM25Q80_H_
 
+typedef bool_t (*pfCallbackGetCharStream_t)(uint8_t* pChar);//ptr func typedef, return TRUE if char presented
+
 typedef enum{
-		 NO_INIT=128
-		,WAIT_INIT_AREA //ожидание определения области флеш для обработки (и колбэка, если не erease)
-		,
+		 NO_INIT_NVM = 0 //0 - не изменять, 0 - автоматически присваивается состоянию автомата после сброса MCU
+		,WAIT_INIT_NVM_AREA //ожидание определения области флеш для обработки (и колбэка, если не erease)
+		,WAIT_NVM_DATA	//работа в ядре автомата, все вводные инициализированны, идет процесс..
+		,NVM_STREAM_RECIVE_COMPLITE
+		,NVM_INTERN_ERROR
 }match_nvm_t;
 
 typedef struct{
-	size_t startAddrNvm;
-	size_t stopAddrNvm;
-
-};
+	size_t startAddrNvm;///относителный-абсолютный адрес флеш, начиная с 0
+	size_t stopAddrNvm;	///если задано, кол-во записываемых данных игнорируется
+	size_t numbsWrite;	///кол-во записываемых данных
+	pfCallbackGetCharStream_t* passCallback;///если задается, то присваивается, иначе, логика присвоений обр. функции потока на стороне клиента
+}nvm_t;
 
 void initNVM25Q80();
 
-typedef bool_t (*pfCallbackGetCharStream_t)(uint8_t* pChar);//ptr func typedef, return TRUE if char presented
-
 void setCallbackInputStream(pfCallbackGetCharStream_t* pfArg);
 
+uint8_t getOltByteNVM();
 match_nvm_t threadNVM25Q80(); // не блокирующая таймер-функция входа в обработчик внутренних событий неблокирующего автомата
 
 #endif /* APL_NVM25Q80_H_ */

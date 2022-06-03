@@ -32,6 +32,8 @@ void cathex( int argc , const char * const * argv ); ///выводит соде�
 
 void echo( int argc , const char * const * argv );
 
+void writeRaw( int argc , const char * const * argv );
+
 //void binfw( int argc , const char * const * argv );
 
 #endif /* INC_CLICOMMANDS_H_ */

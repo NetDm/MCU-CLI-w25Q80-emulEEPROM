@@ -14,6 +14,8 @@
 #include <usb.h>
 #include "CLIcommands.h"
 
+#include "NVM25Q80.h"
+
 #include "w25Qxx.h"
 
 exec_cmds_t list_cmds[]={
@@ -113,11 +115,26 @@ exec_cmds_t list_cmds[]={
 		,{
 				"echo",
 				echo,
-				"Записывает содержимое в сер. флешку в ASCII формате, формат ввода: 'echo <addr> <len> <str>', "
-				" где адрес и длинна вводятся в 10м формате"
+				"Записывает содержимое в сер. флешку в ASCII формате, формат ввода: 'echo <addr> <len> <str>',"
+				" адрес и длинна вводятся в 10м формате. "
+				" Пример ввода: echo 10 Я здесь был! - запишет строку 'Я здесь был!' начиная с 10 адреса"
+				" len не может быть больше остатка от деления на 256 - addr, работает толко со страницей"
+				" данные не будут записаны в занятую страницу"
+				,""
+		}
+
+		,{
+				"writeRaw",
+				writeRaw,
+				"Перезаписывает содержимое в сер. флешку в RAW (bin) формате, формат ввода: "
+				"'echo <addr> <len><ENTER>' - для потоковой записи, терминал переключится в бинарный потоковый прием"
+				" и запишет во флеш принятые байты, после приема <len> кол-ва, автоматически вернется в CLI redline терминал ввода"
+				", адрес и длинна вводятся в 10м формате. Вместо <ENTER> - можно передать символ с кодом 0D(hex) или"
+				"13(dec) и "
 				" Пример ввода: echo 10 Я здесь был! - запишет строку 'Я здесь был!' начиная с 10 адреса"
 				,""
 		}
+
 
 
 
@@ -323,6 +340,7 @@ void echo( int argc , const char * const * argv ){
 		printCli("Адрес задан вне допустимого диапазона\n\r");
 		return;
 	}
+	//собираем аргументы обратно в \0 терминированную строку
 	int i=argc;
 	while(--argc>1){
 		char* src=argv[argc]-1;
@@ -343,6 +361,42 @@ void echo( int argc , const char * const * argv ){
 
 	startWritePageFlash25q( argv[1] , addr , numbs );
 
+	flushKeyboard();
+}
+
+bool_t returnCliByte(uint8_t* retByte){
+	if (rxCharLen()!=0){
+		char chars[2]={0,0};
+		chars[0]=get_char();
+		printCli(chars);
+		return TRUE;
+	}
+	return FALSE;
+}
+
+void writeRaw( int argc , const char * const * argv ){
+	if (argc!=2){
+		respondERROR();
+		return;
+	}
+	size_t addr=atol(argv[0]);
+	if ( addr >= ALL_SPI_FLASH_SIZE){
+		printCli("Адрес задан вне допустимого диапазона\n\r");
+		return;
+	}
+	size_t numbs=atol(argv[1]);
+	if (  ( numbs + addr )  >=  ALL_SPI_FLASH_SIZE  ){
+		respondERROR();
+		printCli("пред!: Данные выйдут за границы флеш");
+	}
+	const char stroutmask[]= "Ввод из потока этого терминала содержимого во внешнюю SPI flash по адресу %u в кол-ве %u байт в RAW формате: '";
+	char strout[sizeof(stroutmask)+2];
+	sprintf( strout , stroutmask , addr , numbs );
+	printCli(strout);
+	printCli(argv[1]);
+	printCli("'\n\r <<");
+
+
 //	setEnableWriteFlash25q();
 //	while (  (0!=numbs)  &&  ( addr < AllSpiFlashSize )  ){
 //		if (rxCharLen()!=0){
@@ -362,6 +416,3 @@ void echo( int argc , const char * const * argv ){
 //	printCli("\n\r-- end keyboard input, thanks! :) --\n\r");
 	flushKeyboard();
 }
-
-
-
