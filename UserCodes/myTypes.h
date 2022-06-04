@@ -15,6 +15,7 @@ typedef enum{
 
 #ifndef fromMX
 #define fromMX(xx) xx##_GPIO_Port, xx##_Pin
+/*example use:  HAL_GPIO_TogglePin(fromMX(BLINK));  */
 #endif
 
 #endif /* MYTYPES_H_ */

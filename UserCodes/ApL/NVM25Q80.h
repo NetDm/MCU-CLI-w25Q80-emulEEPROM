@@ -20,9 +20,8 @@ typedef enum{
 
 typedef struct{
 	size_t startAddrNvm;///относителный-абсолютный адрес флеш, начиная с 0
-	size_t stopAddrNvm;	///если задано, кол-во записываемых данных игнорируется
 	size_t numbsWrite;	///кол-во записываемых данных
-	pfCallbackGetCharStream_t* passCallback;///если задается, то присваивается, иначе, логика присвоений обр. функции потока на стороне клиента
+	pfCallbackGetCharStream_t passCallback;///если задается, то присваивается, иначе, логика присвоений обр. функции потока на стороне клиента
 }nvm_t;
 
 void initNVM25Q80();

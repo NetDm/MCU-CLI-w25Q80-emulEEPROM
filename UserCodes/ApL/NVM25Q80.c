@@ -14,6 +14,8 @@
 
 #include <w25Qxx.h>
 
+static nvm_t iNvm={0}; //instance NVM принятые на исполнение
+
 uint8_t NvmPageQueue[2][PAGE_CACH_FLASH]; // временное хранилище страниц для переноса в кэш внешней флеш
 uint8_t CopyInstanceSector[2][MIN_SECTOR_FLASH_ERASE];//полные копии модифицируемых секторов, перед и во время постраничной модификации
 
@@ -21,7 +23,7 @@ uint8_t CopyInstanceSector[2][MIN_SECTOR_FLASH_ERASE];//полные копии 
  * @brief fCallbackGetCharStream - глобальный указатель на поток, видим только в этом файле
  *
  */
-static pfCallbackGetCharStream_t* fGetCharStream = NULL;
+static pfCallbackGetCharStream_t fGetCharStream = NULL;
 static match_nvm_t stateNvm = 0 ;//не менять! задано начальное состояние атомата
 /*
  * @brief указатель-функция заглушка, если передать setCallbackInputStream указатель на нее
@@ -61,8 +63,6 @@ bool_t getOltByteNVM(uint8_t* retByte){
 	}
 }
 
-nvm_t iNvm; //instance NVM
-
 /*
  *  @brief не блокирующая таймер-функция входа в обработчик внутренних событий неблокирующего автомата
  *  		необходимо организовать периодический вызов из суперцикла, задачи ОСРВ или таймера
@@ -71,6 +71,7 @@ match_nvm_t threadNVM25Q80(){
 	switch (stateNvm){
 		case NO_INIT_NVM:{
 			initMatchNVM25Q80();
+			stateNvm++;
 		}break;
 		//
 		case WAIT_INIT_NVM_AREA:{
@@ -78,14 +79,20 @@ match_nvm_t threadNVM25Q80(){
 		}break;
 		//
 		case WAIT_NVM_DATA:{
-			if (fGetCharStream != NULL){
-				while ((*fGetCharStream)(&byteToNvm)){
+			if ( fGetCharStream != NULL){
+				while (  (*fGetCharStream)(&byteToNvm)  ){
 					byteReadyForExtern = TRUE;
-					//здесь буду решать чего с этим делать..
-					//необходима передача управления основному автомату
-					if (iNvm.numbsWrite){
+					//здесь буду решать чего с этим byteToNvm из потока делать..
+
+					////////////addByteToNvm(byteToNvm);
+
+					if ( iNvm.numbsWrite != 0 ){
 						iNvm.numbsWrite--;
-					}else{
+					}
+					if ( iNvm.numbsWrite >= ALL_SPI_FLASH_SIZE ){
+						iNvm.numbsWrite=0;
+					}
+					if ( iNvm.numbsWrite == 0 ){
 						stateNvm = NVM_STREAM_RECIVE_COMPLITE;
 					}
 				}
@@ -100,6 +107,7 @@ match_nvm_t threadNVM25Q80(){
 		}break;
 		//
 		case NVM_INTERN_ERROR:{
+			stateNvm = NO_INIT_NVM;
 		}break;
 		//error match state
 		default:{
@@ -114,8 +122,17 @@ match_nvm_t threadNVM25Q80(){
  * инициируется необходимый процесс и автомат NVM приступает к работе
  */
 bool_t startNvm(nvm_t* aNvm){
-//	if (aNvm->stopAddrNvm < ALL_SPI_FLASH_SIZE)
 //	aNvm->numbsWrite
-	memcpy(&iNvm,aNvm,sizeof(nvm_t));
+	if ( aNvm->startAddrNvm < ALL_SPI_FLASH_SIZE ){
+		iNvm.startAddrNvm=aNvm->startAddrNvm;
+	}else{return FALSE;}
+	if (  ( ( aNvm->startAddrNvm + aNvm->numbsWrite ) <  ALL_SPI_FLASH_SIZE )  ){
+			iNvm.numbsWrite = aNvm->numbsWrite;
+	}else{return FALSE;}
+	if ( aNvm->passCallback != NULL ){
+		iNvm.passCallback=aNvm->passCallback;
+		fGetCharStream=iNvm.passCallback;
+	}
 	stateNvm = WAIT_NVM_DATA;
+	return TRUE;
 }

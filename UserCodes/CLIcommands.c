@@ -161,6 +161,11 @@ void respondERROR(){
 	printCli(szERROR);
 }
 
+void respondErrorNumersArg(){
+	respondERROR();
+	printCli(" Количество аргументов не соответствует команде \n\r");
+}
+
 void help(int argc, const char * const * argv){
 	printCli ("microCLI library based shell v 1.1\n\r\n");
 	int i=0;
@@ -260,7 +265,7 @@ void eraseAll( int argc , const char * const * argv ){
 void cathex( int argc , const char * const * argv ){
 
 	if (argc!=2){
-		respondERROR();
+		respondErrorNumersArg();
 		return;
 	}
 	size_t addr=atol(argv[0]);
@@ -303,7 +308,7 @@ void jedec( int argc , const char * const * argv ){
 void cat( int argc , const char * const * argv ){
 
 	if (argc!=2){
-		respondERROR();
+		respondErrorNumersArg();
 		return;
 	}
 	size_t addr=atol(argv[0]);
@@ -333,7 +338,7 @@ void cat( int argc , const char * const * argv ){
 
 void echo( int argc , const char * const * argv ){
 	if (argc<2){
-		respondERROR();
+		respondErrorNumersArg();
 		return;
 	}
 	size_t addr=atol(argv[0]);
@@ -367,9 +372,9 @@ void echo( int argc , const char * const * argv ){
 
 bool_t returnCliByte(uint8_t* retByte){
 	if (rxCharLen()!=0){
-		char chars[2]={0,0};
-		chars[0]=get_char();
-		printCli(chars);
+		uint8_t chars[2]={0,0};
+		chars[0]=(uint8_t)get_char();
+		printCli((char*)chars);
 		return TRUE;
 	}
 	return FALSE;
@@ -377,18 +382,20 @@ bool_t returnCliByte(uint8_t* retByte){
 
 void writeRaw( int argc , const char * const * argv ){
 	if (argc!=2){
-		respondERROR();
+		respondErrorNumersArg();
 		return;
 	}
 	size_t addr=atol(argv[0]);
 	if ( addr >= ALL_SPI_FLASH_SIZE){
-		printCli("Адрес задан вне допустимого диапазона\n\r");
+		respondERROR();
+		printCli("Адрес задан вне допустимого диапазона");
 		return;
 	}
 	size_t numbs=atol(argv[1]);
 	if (  ( numbs + addr )  >=  ALL_SPI_FLASH_SIZE  ){
 		respondERROR();
-		printCli("пред!: Данные выйдут за границы флеш");
+		printCli("Данные выйдут за границы флеш");
+		return;
 	}
 	const char stroutmask[]= "Ввод из потока этого терминала содержимого во внешнюю SPI flash по адресу %u в кол-ве %u байт в RAW формате: '";
 	char strout[sizeof(stroutmask)+2];
@@ -397,36 +404,20 @@ void writeRaw( int argc , const char * const * argv ){
 	printCli(argv[1]);
 	printCli("'\n\r <<");
 
-	nvm_t tNvm={
-		.numbsWrite = numbs
-		,.startAddrNvm = addr
-		,.passCallback=returnCliByte
-	};
-		if ( startNvm(&tNvm) ) {
-			while ( threadNVM25Q80()>=WAIT_NVM_DATA );	//внимание! автомат nvm вызывается отсюда,
+	nvm_t tNvm;
+		tNvm.numbsWrite = numbs;
+		tNvm.startAddrNvm = addr;
+		tNvm.passCallback = returnCliByte;
+	if ( startNvm(&tNvm) ) {
+		while ( threadNVM25Q80() >= WAIT_NVM_DATA );	//внимание! автомат nvm вызывается отсюда,
 		}												//пока не отработает
-														//прочие таски блокируются
-														//сам будет вызывать поток
-														//драйвер для изъятия данных из потока
+														//прочие задачи блокируются
+														//сам будет вызывать функцию драйвера
+														//для изъятия данных из потока
 														//returnCliByte(..)
-
+	else{
+		printCli("err: процесс NVM не начался, не удовлетворительные параметры, 2 вн. эшелон проверки");
+	}
 	flushKeyboard();
+	printCli("\n\r ------ end recive ------");
 }
-
-//	setEnableWriteFlash25q();
-//	while (  (0!=numbs)  &&  ( addr < AllSpiFlashSize )  ){
-//		if (rxCharLen()!=0){
-//			char chars[2]={0,0};
-//			chars[0]=get_char();
-//			numbs--;
-//			printCli((char*)chars);
-////			setReadDataAddrFlash25q(addr);
-////			setReadDataAddrFlash25q(addr);
-////			if (readByteDataNextFlash25q()!=CLEAR_NVM_SPI_BYTE){
-////				printCli("\n\rError: ячейка в которую пишется не очищена!");
-////			}
-////			writeByteFlash25q( addr , chars[0] );
-//			addr++;
-//		}
-//	}
-//	printCli("\n\r-- end keyboard input, thanks! :) --\n\r");
