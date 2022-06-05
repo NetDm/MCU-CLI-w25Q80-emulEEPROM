@@ -1,3 +1,11 @@
+/Debug
+/Release
+
+
+/Debug/
+/Release/
+
+
 # Prerequisites
 *.d
 
@@ -9,7 +17,7 @@
 
 # Linker output
 *.ilk
-*.map
+
 *.exp
 
 # Precompiled Headers
@@ -34,7 +42,6 @@
 *.app
 *.i*86
 *.x86_64
-*.hex
 
 # Debug files
 *.dSYM/
