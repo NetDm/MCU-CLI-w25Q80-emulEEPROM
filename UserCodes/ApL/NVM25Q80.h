@@ -13,9 +13,12 @@ typedef bool_t (*pfCallbackGetCharStream_t)(uint8_t* pChar);//ptr func typedef, 
 typedef enum{
 		 NO_INIT_NVM = 0 //0 - не изменять, 0 - автоматически присваивается состоянию автомата после сброса MCU
 		,WAIT_INIT_NVM_AREA //ожидание определения области флеш для обработки (и колбэка, если не erease)
+		,PREPARATIONS_CALC_NVM
+		,COPY_SECT_NVM_TO_BUFF
 		,WAIT_NVM_DATA	//работа в ядре автомата, все вводные инициализированны, идет процесс..
 		,NVM_STREAM_RECIVE_COMPLITE
 		,NVM_INTERN_ERROR
+		,NVM_END_INDEX
 }match_nvm_t;
 
 typedef struct{
@@ -28,8 +31,10 @@ void initNVM25Q80();
 
 void setCallbackInputStream(pfCallbackGetCharStream_t* pfArg);
 
+bool_t pfStreamForErase(uint8_t* retByte);
+
 uint8_t getOltByteNVM();
-match_nvm_t threadNVM25Q80(); // не блокирующая таймер-функция входа в обработчик внутренних событий неблокирующего автомата
+bool_t threadNVM25Q80(); // не блокирующая таймер-функция входа в обработчик внутренних событий неблокирующего автомата
 
 bool_t startNvm(nvm_t* aNvm);
 

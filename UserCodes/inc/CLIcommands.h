@@ -30,10 +30,8 @@ void jedec( int argc , const char * const * argv );
 void cat( int argc , const char * const * argv );
 void cathex( int argc , const char * const * argv ); ///выводит содержимое флеш в шесн
 
-void echo( int argc , const char * const * argv );
-
 void writeRaw( int argc , const char * const * argv );
 
-//void binfw( int argc , const char * const * argv );
+void erase( int argc , const char * const * argv );
 
 #endif /* INC_CLICOMMANDS_H_ */

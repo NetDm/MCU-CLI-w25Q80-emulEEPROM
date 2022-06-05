@@ -11,6 +11,7 @@ RM := rm -rf
 -include sources.mk
 -include UserCodes/microrl/src/subdir.mk
 -include UserCodes/microrl/subdir.mk
+-include UserCodes/SysUtils/subdir.mk
 -include UserCodes/NvmSpi25Qxx/subdir.mk
 -include UserCodes/ApL/subdir.mk
 -include UserCodes/subdir.mk

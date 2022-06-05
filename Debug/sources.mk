@@ -27,6 +27,7 @@ Drivers/STM32L4xx_HAL_Driver/Src \
 UserCodes/ApL \
 UserCodes \
 UserCodes/NvmSpi25Qxx \
+UserCodes/SysUtils \
 UserCodes/microrl/src \
 UserCodes/microrl \
 

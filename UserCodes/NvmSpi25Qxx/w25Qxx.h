@@ -61,21 +61,25 @@ uint8_t getBusyStatusFlash25q();
 void setEnableWriteFlash25q();
 void setDisableWriteFlash25q();
 
-void writeByteFlash25q( uint32_t aAddr , uint8_t aByte );
 uint16_t getManufactIdFlash25q();
 void getUniqueIdFlash25q(uint8_t* ret_ptr);
 void getJedecIdFlash25q(uint8_t* ret_ptr);
 
-uint8_t readByteAddrFlash25q(uint32_t aAddr);
-
-void readBlockDataFlash25q(uint32_t aAddr, uint8_t* data_ptr, uint32_t read_len);
 
 void writeStatusRegsFlash25q(uint8_t val_stat_reg_1, uint8_t val_stat_reg_2);
+
+uint8_t readByteAddrFlash25q(uint32_t aAddr);
+void readBlockDataFlash25q(uint32_t aAddr, uint8_t* data_ptr, uint32_t read_len);
 
 void eraseSector4kFlash25q(uint32_t aAddr_sector);
 void eraseBlock32kFlash25q(uint32_t aAddr_block);
 void eraseBlock64kFlash25q(uint32_t aAddr_block);
 void eraseAllChipFlash25q();
+
+void writeByteFlash25q( uint32_t aAddr , uint8_t aByte );
+bool_t writePageFlash25q( uint32_t aPageAddr , uint8_t* pBuffer , uint32_t aNumb);
+bool_t writeSectorFlash25q(uint32_t aPageAddr , uint8_t* pBuffer , uint32_t aNumbs);
+
 
 void initFlash25q();
 

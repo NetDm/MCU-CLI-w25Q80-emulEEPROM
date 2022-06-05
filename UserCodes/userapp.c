@@ -19,7 +19,9 @@ void userApp(void)
 
 	initCLI();
 
-
+	dbug ("\033[2J");    // ESC seq for clear entire screen
+	dbug ("\033[H");     // ESC seq for move cursor at left-top corner
+	dbugnl("Build: " __TIME__ " , " __DATE__ "\n\r");
 
 	while (1){
 

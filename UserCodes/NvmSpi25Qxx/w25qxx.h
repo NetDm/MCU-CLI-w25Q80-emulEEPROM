@@ -9,9 +9,6 @@
 #include "main.h"
 
 extern SPI_HandleTypeDef hspi2;
-extern UART_HandleTypeDef huart1;
-
-#define DEBUG_UART               &huart1
 #define W25QXX_SPI_PTR           &hspi1
 //#define W25QXX_SPI               SPI2
 

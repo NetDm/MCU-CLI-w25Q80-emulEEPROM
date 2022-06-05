@@ -8,16 +8,24 @@
 #ifndef HWCONFIG_H_
 #define HWCONFIG_H_
 
+#define DBUG (5)
+
 /*
- * если юзается uart, необходим кольцевой буффер приема с DMA и NVIC настроить в STM32CUBE
+ * если юзается uart, необходим кольцевой буффер приема с DMA и NVIC, поставить галочки в STM32CUBE
  */
+
+#define STM32CUBE (1)
+
 #define HUART_CLI huart2
+
+#define DBUG_HUART huart1
 
 #define	CLI_PROMPT_DEFAULT_TEXT "25Q80 CLI >: " /*use size for positions under him*/
 
-#define DBUG (2)
-#if DBUG>=2
-#warning ВНИМАНИЕ БЛОКИРУЮЩАЯ ОТЛАДКА, ДЛЯ РЕЛИЗА СНИЗИТЬ НИЖЕ 2х !!!
+
+
+#if DBUG>=5
+#warning ВНИМАНИЕ БЛОКИРУЮЩАЯ ОТЛАДКА, ДЛЯ РЕЛИЗА СНИЗИТЬ НИЖЕ 5х !!!
 #endif
 
 #endif /* HWCONFIG_H_ */

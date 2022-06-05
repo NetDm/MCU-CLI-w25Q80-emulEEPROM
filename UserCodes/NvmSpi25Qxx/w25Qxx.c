@@ -13,6 +13,8 @@
 
 #include "al-spi.h"
 
+#include "w25q80def.h"
+
 //t_spi_data (*_pfSpiGetSendByte)(t_spi_data) = &sendGetByteSpi;
 
 static void sleep(uint32_t a){
@@ -144,15 +146,20 @@ uint8_t readByteAddrFlash25q(uint32_t aAddr) {
 }
 
 void readBlockDataFlash25q(uint32_t aAddr, uint8_t *data_ptr, uint32_t read_len) {
-
+	dbugnl4("вычитываем readBlockDataFlash25q addr = %d , len = %d\n\r",aAddr,read_len);
 	selectFlash25q();
 
 	sendSpiFlashByte(FLASH25Q_COMMAND_READ_DATA);
 	sendAddr24Flash25q(aAddr);
 
 	for (uint32_t i = 0; i < read_len; i++) {
+		if ( (i%64) == 0 ){ dbug4("\n\r%u:",i) ;}
+		if ( (i%8) == 0 ){ dbug4(" ") ;}
 		data_ptr[i] = (uint8_t) getSpiByte();
+		dbug4("%c",data_ptr[i]);
 	}
+	unselectFlash25q();
+
 }
 
 void writeStatusRegsFlash25q(uint8_t val_stat_reg_1, uint8_t val_stat_reg_2) {
@@ -164,6 +171,7 @@ void writeStatusRegsFlash25q(uint8_t val_stat_reg_1, uint8_t val_stat_reg_2) {
 }
 
 void setEnableWriteFlash25q() {
+	dbugnl4("enable W flash");
 	selectFlash25q();
 		sendSpiFlashByte(FLASH25Q_COMMAND_WRITE_ENABLE);
 	unselectFlash25q();
@@ -220,10 +228,15 @@ void writeByteFlash25q( uint32_t aAddr , uint8_t aByte ){
  * @arg aNumb - кол-во записываемых данных, !не должен вылазить за страницу вн. кэша вн. флеша (256-aOffset)
  */
 
-void startWritePageFlash25q(uint8_t *pBuffer, uint32_t aPageAddr, uint32_t aNumb)
-{
+bool_t writePageFlash25q( uint32_t aPageAddr , uint8_t* pBuffer , uint32_t aNumb){
 
-//	if(((aNumb + aOffset) > PAGE_CACH_FLASH) || (aNumb == 0))
+	dbugnl4("writePageFlash25q( Addr = %d , разм. данных для записи = %d )" , aPageAddr	, aNumb );
+
+	if (  ( aNumb > PAGE_CACH_FLASH )  ||  ( aNumb == 0 )  ){
+		dbugerr("размера страницы посл. кэш флеш");
+		return FALSE;
+	}
+
 //		aNumb = PAGE_CACH_FLASH - aOffset;
 //
 //	if((aOffset + aNumb) > PAGE_CACH_FLASH)
@@ -238,26 +251,59 @@ void startWritePageFlash25q(uint8_t *pBuffer, uint32_t aPageAddr, uint32_t aNumb
 
 	sendSpiFlashByte(FLASH25Q_COMMAND_PAGE_PROGRAMM);
 
-//	aPageAddr = (aPageAddr * PAGE_CACH_FLASH) + aOffset;
-
 	sendAddr24Flash25q(aPageAddr);
 
 	sendSpiData( pBuffer, aNumb );
 
-	unselectFlash25q();
+	unselectFlash25q();//подтверждение начала записи
 
 	waitEndWriteFlash25q();
 
-	sleep(1);
+	unselectFlash25q();
+
+	return TRUE;
 }
 
 
-void eraseSector4kFlash25q(uint32_t aAddr_sector) {
-	//ERASE THE SPECIFIED SECTOR (4KB)
-	selectFlash25q();
+bool_t writeSectorFlash25q(uint32_t aSectorAddr , uint8_t *pBuffer , uint32_t aNumbs){
+	dbugnl4("writeSectorFlash25q( Addr = %lu , разм. данных для записи = %lu )"
+			,aSectorAddr	,aNumbs	);
 
+	if ( (aSectorAddr>ALL_SPI_FLASH_SIZE) || (aNumbs>ALL_SPI_FLASH_SIZE) ) {
+		return FALSE;
+	}
+	int32_t n = aNumbs;
+	uint8_t* pSrc;pSrc=pBuffer;
+	uint32_t addrSrc=aSectorAddr;
+
+	if (addrSrc % ALL_SPI_FLASH_SIZE != 0){
+		dbugw("addr не выровнен по странице");
+	}
+
+	while( n > 0 ){
+		writePageFlash25q( addrSrc , pSrc , PAGE_CACH_FLASH );
+		addrSrc += PAGE_CACH_FLASH;
+		pSrc += PAGE_CACH_FLASH;
+		n -= PAGE_CACH_FLASH;
+	}
+	return TRUE;
+}
+
+void eraseSector4kFlash25q(uint32_t aAddr_sector) {
+	dbugnl4("eraseSector4kFlash25q( addr = %09u )" , aAddr_sector );
+	//ERASE THE SPECIFIED SECTOR (4KB)
+	unselectFlash25q();
+	setEnableWriteFlash25q();
+
+	selectFlash25q();
 	sendSpiFlashByte(FLASH25Q_COMMAND_SECTOR_ERASE_4KB);
 	sendAddr24Flash25q(aAddr_sector);
+	unselectFlash25q();
+
+	dbugnl4("..wait..");timerStart();
+	waitEndWriteFlash25q();
+	dbugnl4("%u ms erase sector (~30ms)",retTimeStamp());
+
 }
 
 void eraseBlock32kFlash25q(uint32_t aBlock) {
@@ -284,8 +330,9 @@ void eraseAllChipFlash25q() {
 	sendSpiFlashByte(FLASH25Q_COMMAND_CHIP_ERASE);
 	unselectFlash25q();
 
+	dbugnl4("..wait..");timerStart();
 	waitEndWriteFlash25q();
+	dbugnl4("%u ms erase sector (~2000ms <6000ms)",retTimeStamp());
 
-		sleep(10);
 }
 
