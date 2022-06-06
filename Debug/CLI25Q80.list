@@ -35,15 +35,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  15 .debug_ranges 00000ea0  00000000  00000000  000369f8  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  0002a41e  00000000  00000000  00037898  2**0
+ 16 .debug_macro  0002a424  00000000  00000000  00037898  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   000171ba  00000000  00000000  00061cb6  2**0
+ 17 .debug_line   000171ba  00000000  00000000  00061cbc  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    000f0646  00000000  00000000  00078e70  2**0
+ 18 .debug_str    000f0650  00000000  00000000  00078e76  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000050  00000000  00000000  001694b6  2**0
+ 19 .comment      00000050  00000000  00000000  001694c6  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00004a54  00000000  00000000  00169508  2**2
+ 20 .debug_frame  00004a54  00000000  00000000  00169518  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -15487,7 +15487,7 @@ void sendDataSpi(void* arg, uint16_t aNumbs ){
 	t_spi_data TX = arg;
  8005e88:	687b      	ldr	r3, [r7, #4]
  8005e8a:	73fb      	strb	r3, [r7, #15]
-	HAL_SPI_Transmit(&hspi1
+	HAL_SPI_Transmit(&HSPI25Q80
  8005e8c:	887a      	ldrh	r2, [r7, #2]
  8005e8e:	f640 33b8 	movw	r3, #3000	; 0xbb8
  8005e92:	6879      	ldr	r1, [r7, #4]
@@ -15519,7 +15519,7 @@ void sendByteSpi(t_spi_data arg){
  8005eb2:	79fb      	ldrb	r3, [r7, #7]
  8005eb4:	73fb      	strb	r3, [r7, #15]
 	t_spi_data RX;
-	HAL_SPI_Transmit(&hspi1
+	HAL_SPI_Transmit(&HSPI25Q80
  8005eb6:	f107 010f 	add.w	r1, r7, #15
  8005eba:	f640 33b8 	movw	r3, #3000	; 0xbb8
  8005ebe:	2201      	movs	r2, #1
@@ -15546,7 +15546,7 @@ t_spi_data getByteSpi() {
  8005ed6:	b082      	sub	sp, #8
  8005ed8:	af00      	add	r7, sp, #0
 		t_spi_data RX;
-		HAL_SPI_Receive(&hspi1
+		HAL_SPI_Receive(&HSPI25Q80
  8005eda:	1df9      	adds	r1, r7, #7
  8005edc:	f640 33b8 	movw	r3, #3000	; 0xbb8
  8005ee0:	2201      	movs	r2, #1

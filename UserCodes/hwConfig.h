@@ -16,6 +16,9 @@
 
 #define STM32CUBE (1)
 
+#define HSPI25Q80 hspi1
+
+
 #define HUART_CLI huart2
 
 #define DBUG_HUART huart1
