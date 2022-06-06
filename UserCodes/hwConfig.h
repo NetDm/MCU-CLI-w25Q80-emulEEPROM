@@ -8,7 +8,7 @@
 #ifndef HWCONFIG_H_
 #define HWCONFIG_H_
 
-#define DBUG (5)
+#define DBUG (1)
 
 /*
  * если юзается uart, необходим кольцевой буффер приема с DMA и NVIC, поставить галочки в STM32CUBE

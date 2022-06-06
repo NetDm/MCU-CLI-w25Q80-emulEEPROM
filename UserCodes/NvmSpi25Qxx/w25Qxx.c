@@ -21,15 +21,15 @@ static void sleep(uint32_t a){
 	HAL_Delay(a);
 }
 
-void sendSpiData(t_spi_data* pArg,uint16_t numbs) {
+void sendSpiData(spi_data_t* pArg,uint16_t numbs) {
 	sendDataSpi(pArg,numbs);
 }
 
-void sendSpiFlashByte(t_spi_data pArg) {
+void sendSpiFlashByte(spi_data_t pArg) {
 	sendByteSpi(pArg);
 }
 
-t_spi_data getSpiByte(){
+spi_data_t getSpiByte(){
 	return (getByteSpi());
 }
 

@@ -13,7 +13,7 @@
 #ifndef _FLASH25Q_
 #define	_FLASH25Q_
 
-typedef uint8_t t_spi_data;
+typedef uint8_t spi_data_t;
 
 //todo применть weak замены функц, см стандарт gcc на них, подстановка макросов gcc вместо стандартных weak
 //static t_spi_data (*_pfSpiGetSend)(t_spi_data);

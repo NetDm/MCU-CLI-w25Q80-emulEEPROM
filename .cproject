@@ -43,13 +43,13 @@
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.includepaths.79425859" name="Include paths (-I)" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.includepaths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../Core/Inc"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/UserCodes/ApL}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/UserCodes/NvmSpi25Qxx}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/UserCodes/microrl/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/UserCodes/microrl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/UserCodes/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/UserCodes}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/UserCodes/SysUtils}&quot;"/>
+									<listOptionValue builtIn="false" value="../UserCodes/ApL"/>
+									<listOptionValue builtIn="false" value="../UserCodes/NvmSpi25Qxx"/>
+									<listOptionValue builtIn="false" value="../UserCodes/microrl/src"/>
+									<listOptionValue builtIn="false" value="../UserCodes/microrl"/>
+									<listOptionValue builtIn="false" value="../UserCodes/inc"/>
+									<listOptionValue builtIn="false" value="../UserCodes"/>
+									<listOptionValue builtIn="false" value="../UserCodes/SysUtils"/>
 									<listOptionValue builtIn="false" value="../Drivers/STM32L4xx_HAL_Driver/Inc"/>
 									<listOptionValue builtIn="false" value="../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy"/>
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Device/ST/STM32L4xx/Include"/>
@@ -58,10 +58,10 @@
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.includefiles.492683464" name="Include files (-include)" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.includefiles" useByScannerDiscovery="false" valueType="includeFiles">
 									<listOptionValue builtIn="false" value="stdint.h"/>
 									<listOptionValue builtIn="false" value="stddef.h"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Core/Inc/main.h}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/UserCodes/hwConfig.h}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/UserCodes/myTypes.h}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/UserCodes/SysUtils/dbug.h}&quot;"/>
+									<listOptionValue builtIn="false" value="../Core/Inc/main.h"/>
+									<listOptionValue builtIn="false" value="../UserCodes/hwConfig.h"/>
+									<listOptionValue builtIn="false" value="../UserCodes/myTypes.h"/>
+									<listOptionValue builtIn="false" value="../UserCodes/SysUtils/dbug.h"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.584417190" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
 							</tool>

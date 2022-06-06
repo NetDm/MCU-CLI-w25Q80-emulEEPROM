@@ -30,7 +30,7 @@ void deselectFlashSpi(void){
 }
 
 void sendDataSpi(void* arg, uint16_t aNumbs ){
-	t_spi_data TX = arg;
+	spi_data_t TX = arg;
 	HAL_SPI_Transmit(&HSPI25Q80
 			, arg
 			,aNumbs/*sizeof(t_spi_data)*/
@@ -40,9 +40,9 @@ void sendDataSpi(void* arg, uint16_t aNumbs ){
 	return ;
 }
 
-void sendByteSpi(t_spi_data arg){
-	t_spi_data TX = arg;
-	t_spi_data RX;
+void sendByteSpi(spi_data_t arg){
+	spi_data_t TX = arg;
+	spi_data_t RX;
 	HAL_SPI_Transmit(&HSPI25Q80
 			, &TX
 			,1
@@ -52,8 +52,8 @@ void sendByteSpi(t_spi_data arg){
 	return ( RX );
 }
 
-t_spi_data getByteSpi() {
-		t_spi_data RX;
+spi_data_t getByteSpi() {
+		spi_data_t RX;
 		HAL_SPI_Receive(&HSPI25Q80
 				, &RX
 				,1
